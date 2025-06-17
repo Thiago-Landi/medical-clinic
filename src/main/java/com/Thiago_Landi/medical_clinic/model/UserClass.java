@@ -20,7 +20,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user_tb", indexes = {@Index(name = "idx_user_email", columnList = "email")})
+@Table(name = "users_tb", indexes = {@Index(name = "idx_user_email", columnList = "email")})
 @Data
 @NoArgsConstructor
 public class UserClass implements Serializable {
@@ -29,9 +29,6 @@ public class UserClass implements Serializable {
 	@Id 
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@Column(name = "name", nullable = false)
-	private String name;
 	
 	@Column(name = "email", unique = true, nullable = false)
 	private String email;
