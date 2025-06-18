@@ -1,5 +1,6 @@
 package com.Thiago_Landi.medical_clinic.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -7,6 +8,9 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -17,9 +21,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "appointments") 
 @Data
 @NoArgsConstructor
-public class Appointment {
+public class Appointment implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-
+	@Id 
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	
 	@ManyToOne
 	@JoinColumn(name="id_specialty")
 	private Specialty specialty;
