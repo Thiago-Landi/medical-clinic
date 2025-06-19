@@ -34,7 +34,8 @@ public class UserClassService implements UserDetailsService {
 		Optional<UserClass> optional = userRepository.findByEmail(username);
 		UserClass userClass = optional.orElseThrow(
 				() -> new UsernameNotFoundException("Usuário não encontrado"));
-		return new User(userClass.getEmail(), userClass.getPassword(), getAuthorities(userClass.getProfiles()));
+		return new User(userClass.getEmail(), userClass.getPassword(), 
+				getAuthorities(userClass.getProfiles()));
 	}
 	
 	private List<GrantedAuthority> getAuthorities(List<Profile> profiles) {

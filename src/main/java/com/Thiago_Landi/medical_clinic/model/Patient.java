@@ -45,6 +45,6 @@ public class Patient implements Serializable {
 	private List<Appointment> appointments;
 	
 	@OneToOne(cascade = CascadeType.REMOVE)
-	@JoinColumn(name = "id_usuario")
+	@JoinColumn(name = "id_user")
 	private UserClass user;
 }

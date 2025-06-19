@@ -40,8 +40,8 @@ public class UserClass implements Serializable {
 	@ManyToMany
 	@JoinTable(
 	name = "user_has_profiles",
-	joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-	inverseJoinColumns = {@JoinColumn(name = "profile_id", referencedColumnName = "id")}
+	joinColumns = {@JoinColumn(name = "id_user", referencedColumnName = "id")},
+	inverseJoinColumns = {@JoinColumn(name = "id_profile", referencedColumnName = "id")}
 	)
 	private List<Profile> profiles;
 	

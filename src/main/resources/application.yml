@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/demo_security?useTimezone=true&serverTimezone=America/Sao_Paulo&useSSL=false
+    url: jdbc:mysql://localhost:3306/clinic?useTimezone=true&serverTimezone=America/Sao_Paulo&useSSL=false
     username: root
     password: root
 

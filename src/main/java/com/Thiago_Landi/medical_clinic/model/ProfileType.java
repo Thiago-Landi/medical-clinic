@@ -2,7 +2,7 @@ package com.Thiago_Landi.medical_clinic.model;
 
 
 public enum ProfileType {
-	ADMIN(1, "ADMIN"), MEDICO(2, "MEDICO"), PACIENTE(3, "PACIENTE");
+	ADMIN(1, "ADMIN"), DOCTOR(2, "DOCTOR"), PATIENT(3, "PATIENT");
 	
 	private long cod;
 	private String desc;
