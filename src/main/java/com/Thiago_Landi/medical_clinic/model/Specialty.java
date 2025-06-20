@@ -36,7 +36,7 @@ public class Specialty implements Serializable {
 	@ManyToMany
 	@JoinTable(
 			name = "doctors_have_specialties",
-			joinColumns = @JoinColumn(name = "id_specialties", referencedColumnName = "id"),
+			joinColumns = @JoinColumn(name = "id_specialty", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "id_doctor", referencedColumnName = "id")
     )
 	private List<Doctor> doctors;

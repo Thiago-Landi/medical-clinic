@@ -2,6 +2,7 @@ package com.Thiago_Landi.medical_clinic.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +21,9 @@ public class UserClassController {
 	private final UserClassService userClassService;
 	
 	@PostMapping
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> save(@RequestBody UserClassDTO dto){
 		userClassService.save(dto);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
-
 	}
 }
