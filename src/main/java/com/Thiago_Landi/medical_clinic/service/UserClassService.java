@@ -10,8 +10,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.Thiago_Landi.medical_clinic.controller.dto.UserClassDTO;
+import com.Thiago_Landi.medical_clinic.controller.mapper.UserClassMapper;
 import com.Thiago_Landi.medical_clinic.model.Profile;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.repository.UserClassRepository;
@@ -23,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class UserClassService implements UserDetailsService {
 
 	private final UserClassRepository userRepository;
+	private final PasswordEncoder enconder;
+	private final UserClassMapper mapper;
 	
 	public UserClass findByEmail(String email) {
 		return userRepository.findByEmail(email) .orElseThrow(
@@ -43,4 +48,10 @@ public class UserClassService implements UserDetailsService {
                 .map(profile -> new SimpleGrantedAuthority(profile.getDescription()))
                 .collect(Collectors.toList());    
         }
+	
+	public void save(UserClassDTO dto) {
+		String encryptedPassword = enconder.encode(dto.password());
+		UserClass userClass = mapper.toEntity(dto.withPassword(encryptedPassword));
+		userRepository.save(userClass);
+	}
 }
