@@ -27,14 +27,14 @@ public class UserClassController {
 	private final UserClassService userClassService;
 	
 	@PostMapping
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> save(@RequestBody UserClassDTO dto){
 		userClassService.save(dto);
 		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 	
 	@GetMapping("/profile/{description}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<List<UserClass>> findByProfileDescription(@PathVariable(
 				"description")String description) {
 		List<UserClass> users = userClassService.findByProfileDescription(description);

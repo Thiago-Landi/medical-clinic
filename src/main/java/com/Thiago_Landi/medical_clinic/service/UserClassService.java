@@ -49,7 +49,7 @@ public class UserClassService implements UserDetailsService {
 	
 	private List<GrantedAuthority> getAuthorities(List<Profile> profiles) {
         return profiles.stream()
-                .map(profile -> new SimpleGrantedAuthority("ROLE_" + profile.getDescription()))
+                .map(profile -> new SimpleGrantedAuthority(profile.getDescription()))
                 .collect(Collectors.toList());    
         }
 	

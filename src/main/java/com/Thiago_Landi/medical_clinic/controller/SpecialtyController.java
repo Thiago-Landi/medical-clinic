@@ -29,7 +29,7 @@ public class SpecialtyController {
 	private final SpecialtyService specialtyService;
 	
 	@PostMapping
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> save(@RequestBody SpecialtyDTO dto){
 		specialtyService.save(dto);		
 		return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -42,7 +42,7 @@ public class SpecialtyController {
 	}
 	
 	@DeleteMapping("{id}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> delete(@PathVariable("id") String id) {
 		Optional<Specialty> speciaOptional = specialtyService.findById(id);
 		if(speciaOptional.isEmpty()) return ResponseEntity.notFound().build();
@@ -52,7 +52,7 @@ public class SpecialtyController {
 	}
 	
 	@PatchMapping("{id}")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> update(@PathVariable("id") String id, @RequestBody SpecialtyDTO dto) {
 		Long longId; 
 		try {

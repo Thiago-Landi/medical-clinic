@@ -1,5 +1,6 @@
 package com.Thiago_Landi.medical_clinic.service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import com.Thiago_Landi.medical_clinic.controller.dto.DoctorDTO;
 import com.Thiago_Landi.medical_clinic.controller.mapper.DoctorMapper;
 import com.Thiago_Landi.medical_clinic.model.Doctor;
 import com.Thiago_Landi.medical_clinic.model.Specialty;
+import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.repository.DoctorRepository;
 import com.Thiago_Landi.medical_clinic.repository.SpecialtyRepository;
 
@@ -24,11 +26,17 @@ public class DoctorService {
 	private final SpecialtyRepository specialtyRepository;
 	private final DoctorMapper mapper;
 	
-	public void save(DoctorDTO dto) {
+	public void save(DoctorDTO dto, UserClass user) {
+		Optional<Doctor> existingDoctor = doctorRepository.findByUserId(user.getId());
+		
+		if(existingDoctor.isPresent())  throw new IllegalStateException(
+				"Usuário já possui um médico cadastrado.");
+		
 		Doctor doctor = mapper.toEntity(dto);
 		
 		Set<Specialty> specialties = mapSpecialtyTitlesToEntities(dto.specialties());
 		doctor.setSpecialties(specialties);
+		doctor.setUser(user);
 		
 		doctorRepository.save(doctor);
 	}
