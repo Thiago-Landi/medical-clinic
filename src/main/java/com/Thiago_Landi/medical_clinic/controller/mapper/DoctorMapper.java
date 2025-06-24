@@ -7,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.DoctorResponseDTO;
 import com.Thiago_Landi.medical_clinic.model.Doctor;
 import com.Thiago_Landi.medical_clinic.model.Specialty;
 
@@ -18,6 +19,9 @@ public interface DoctorMapper {
 	
 	@Mapping(target = "specialties", source = "specialties")
 	DoctorDTO toDTO(Doctor model);
+	
+	@Mapping(target = "specialties", expression = "java(map(doctor.getSpecialties()))")
+	DoctorResponseDTO toResponseDTO(Doctor doctor);
 	
 	default Set<String> map(Set<Specialty> specialties) {
 		return specialties.stream()

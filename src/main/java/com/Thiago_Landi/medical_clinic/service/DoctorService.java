@@ -1,5 +1,6 @@
 package com.Thiago_Landi.medical_clinic.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.DoctorResponseDTO;
 import com.Thiago_Landi.medical_clinic.controller.mapper.DoctorMapper;
 import com.Thiago_Landi.medical_clinic.model.Doctor;
 import com.Thiago_Landi.medical_clinic.model.Specialty;
@@ -16,6 +18,7 @@ import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.repository.DoctorRepository;
 import com.Thiago_Landi.medical_clinic.repository.SpecialtyRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,7 +33,7 @@ public class DoctorService {
 		Optional<Doctor> existingDoctor = doctorRepository.findByUserId(user.getId());
 		
 		if(existingDoctor.isPresent())  throw new IllegalStateException(
-				"Usuário já possui um médico cadastrado.");
+				"User already has a registered doctor.");
 		
 		Doctor doctor = mapper.toEntity(dto);
 		
@@ -52,5 +55,18 @@ public class DoctorService {
 						.orElseThrow(() -> new ResponseStatusException(
 								HttpStatus.BAD_REQUEST, "Specialty not found: " + title)))
 				.collect(Collectors.toSet());	
+	}
+	
+	public List<DoctorResponseDTO> findAll(){
+		return doctorRepository.findAll()
+				.stream()
+				.map(mapper::toResponseDTO)
+				.collect(Collectors.toList());
+	}
+	
+	public DoctorResponseDTO findById(Long id) {
+		Doctor doctor = doctorRepository.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+		return mapper.toResponseDTO(doctor);
 	}
 }
