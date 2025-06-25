@@ -1,6 +1,7 @@
 package com.Thiago_Landi.medical_clinic.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +23,7 @@ import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.service.DoctorService;
 import com.Thiago_Landi.medical_clinic.service.UserClassService;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -56,4 +60,30 @@ public class DoctorController {
 			return ResponseEntity.ok(allDto);
 		}
 	}
+	
+	@PutMapping("me/specialties")
+	@PreAuthorize("hasAuthority('DOCTOR')")
+	public ResponseEntity<String> addSpecialtiesToDoctor(@RequestBody Set<String> specialties){
+		try {
+	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	        UserClass user = userClassService.findByEmail(auth.getName());
+
+	        doctorService.addSpecialtiesUserDoctor(user, specialties);
+	        return ResponseEntity.ok("Specialties added successfully.");
+	    } catch (EntityNotFoundException | IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    } 
+	}
+	
+	@PutMapping("{id}/specialties")
+	@PreAuthorize("hasAuthority('ADMIN')")
+	public ResponseEntity<String> addSpecialtiesToDoctor(@PathVariable("id") Long id, 
+			@RequestBody Set<String> specialties ){
+		 try {
+		        doctorService.addSpecialtiesToDoctorByAdmin(id, specialties);
+		        return ResponseEntity.ok("Specialties added successfully.");
+		    } catch (EntityNotFoundException | IllegalArgumentException e) {
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		    } 
+	}	
 }

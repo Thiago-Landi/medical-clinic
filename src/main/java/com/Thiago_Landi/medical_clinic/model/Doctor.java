@@ -53,7 +53,7 @@ public class Doctor implements Serializable{
 			joinColumns = @JoinColumn(name = "id_doctor", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "id_specialty", referencedColumnName = "id")
     )
-	private Set<Specialty> Specialties; // set para que não adicione especialidade igual no mesmo medico
+	private Set<Specialty> specialties; // set para que não adicione especialidade igual no mesmo medico
 	
 	@JsonIgnore
 	@OneToMany(mappedBy = "doctor")
