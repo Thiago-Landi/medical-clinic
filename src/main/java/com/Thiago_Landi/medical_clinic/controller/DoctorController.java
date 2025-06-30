@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorResponseDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.DoctorUpdateDTO;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.service.DoctorService;
 import com.Thiago_Landi.medical_clinic.service.UserClassService;
@@ -77,7 +79,7 @@ public class DoctorController {
 	
 	@PutMapping("{id}/specialties")
 	@PreAuthorize("hasAuthority('ADMIN')")
-	public ResponseEntity<String> addSpecialtiesToDoctor(@PathVariable("id") Long id, 
+	public ResponseEntity<String> addSpecialtiesToDoctorByAdmin(@PathVariable("id") Long id, 
 			@RequestBody Set<String> specialties ){
 		 try {
 		        doctorService.addSpecialtiesToDoctorByAdmin(id, specialties);
@@ -86,4 +88,23 @@ public class DoctorController {
 		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		    } 
 	}	
+	
+	@PatchMapping
+	@PreAuthorize("hasAuthority('DOCTOR')")
+	public ResponseEntity<String> update(@RequestBody DoctorUpdateDTO dto){
+		try {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			UserClass user = userClassService.findByEmail(auth.getName());
+			
+			doctorService.update(dto, user);
+			return ResponseEntity.noContent().build();
+		
+		 } catch (EntityNotFoundException e) {
+		        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		        
+		    } catch (IllegalArgumentException e) {
+		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		 }
+	}
+		
 }

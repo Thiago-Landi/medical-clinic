@@ -15,7 +15,7 @@ public record DoctorDTO(
 		String name, 
 		@NotBlank(message = "required field")
 		Integer crm, 
-		@NotNull(message = "campo obrigatorio")
+		@NotNull(message = "required field")
 		@Past
 		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 		LocalDate dateInscription,

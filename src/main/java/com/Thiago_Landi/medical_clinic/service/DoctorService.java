@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorResponseDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.DoctorUpdateDTO;
 import com.Thiago_Landi.medical_clinic.controller.mapper.DoctorMapper;
 import com.Thiago_Landi.medical_clinic.model.Doctor;
 import com.Thiago_Landi.medical_clinic.model.Specialty;
@@ -99,6 +100,23 @@ public class DoctorService {
 				.collect(Collectors.toSet());
 		
 		doctor.getSpecialties().addAll(specialtiesToAdd);
+	}
+	
+	public void update(DoctorUpdateDTO dto, UserClass user) {
+		Doctor doctor = doctorRepository.findByUserId(user.getId()).orElseThrow(
+				() -> new EntityNotFoundException("user is not a doctor"));
+		
+		
+		updateData(dto, doctor);
+		doctorRepository.save(doctor);
+	}
+	
+	private void updateData(DoctorUpdateDTO dto, Doctor model) {
+		if(dto.name() != null) model.setName(dto.name());
+		
+		if(dto.crm() != null) model.setCrm(dto.crm());
+		
+		if(dto.dateInscription() != null) model.setDateInscription(dto.dateInscription());
 	}
 }
 
