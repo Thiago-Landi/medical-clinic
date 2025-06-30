@@ -51,7 +51,7 @@ public class DoctorController {
 	}
 	
 	// o metodo vai ser liberado para todos que tenham login, porque é um metodo para saber quais medicos tem e suas especialidades na clinica
-	@GetMapping
+	@GetMapping("getDoctors")
 	public ResponseEntity<?> getDoctors(@RequestParam(required = false) Long id) {
 		if(id != null) {
 			DoctorResponseDTO dto = doctorService.findById(id);
@@ -105,6 +105,15 @@ public class DoctorController {
 		    } catch (IllegalArgumentException e) {
 		        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 		 }
+	}
+	
+	@GetMapping("/findByName/{name}")
+	public ResponseEntity<?> findByName(@PathVariable String name){
+		List<DoctorResponseDTO> response = doctorService.findByName(name);
+		
+		if(response.isEmpty()) return ResponseEntity.ok("No doctor found");
+		
+		return ResponseEntity.ok(response);
 	}
 		
 }

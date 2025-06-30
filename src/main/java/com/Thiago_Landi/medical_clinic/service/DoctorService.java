@@ -118,5 +118,12 @@ public class DoctorService {
 		
 		if(dto.dateInscription() != null) model.setDateInscription(dto.dateInscription());
 	}
+	
+	public List<DoctorResponseDTO> findByName(String name) {
+		return doctorRepository.findByNameContainingIgnoreCase(name)
+				.stream()
+				.map(mapper::toResponseDTO)
+				.collect(Collectors.toList());
+	}
 }
 
