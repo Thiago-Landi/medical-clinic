@@ -6,8 +6,7 @@ import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,7 +23,6 @@ import com.Thiago_Landi.medical_clinic.controller.dto.DoctorResponseDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.DoctorUpdateDTO;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.service.DoctorService;
-import com.Thiago_Landi.medical_clinic.service.UserClassService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +33,12 @@ import lombok.RequiredArgsConstructor;
 public class DoctorController {
 
 	private final DoctorService doctorService;
-	private final UserClassService userClassService;
 	
 	@PostMapping
 	@PreAuthorize("hasAuthority('DOCTOR')")
-	public ResponseEntity<String> save(@RequestBody DoctorDTO dto){
-		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			UserClass user = userClassService.findByEmail(auth.getName());
-		
-			doctorService.save(dto, user);
+	public ResponseEntity<String> save(@RequestBody DoctorDTO dto, @AuthenticationPrincipal UserClass userClass){
+		try {	
+			doctorService.save(dto, userClass);
 			return ResponseEntity.status(HttpStatus.CREATED).build();
 		}catch(IllegalStateException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -66,12 +60,10 @@ public class DoctorController {
 	
 	@PutMapping("me/specialties")
 	@PreAuthorize("hasAuthority('DOCTOR')")
-	public ResponseEntity<String> addSpecialtiesToDoctor(@RequestBody Set<String> specialties){
+	public ResponseEntity<String> addSpecialtiesToDoctor(@RequestBody Set<String> specialties, @AuthenticationPrincipal UserClass userClass){
 		try {
-	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	        UserClass user = userClassService.findByEmail(auth.getName());
-
-	        doctorService.addSpecialtiesUserDoctor(user, specialties);
+	        
+	        doctorService.addSpecialtiesUserDoctor(userClass, specialties);
 	        return ResponseEntity.ok("Specialties added successfully.");
 	    } catch (EntityNotFoundException | IllegalArgumentException e) {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -92,12 +84,10 @@ public class DoctorController {
 	
 	@PatchMapping
 	@PreAuthorize("hasAuthority('DOCTOR')")
-	public ResponseEntity<String> update(@RequestBody DoctorUpdateDTO dto){
+	public ResponseEntity<String> update(@RequestBody DoctorUpdateDTO dto, @AuthenticationPrincipal UserClass userClass){
 		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			UserClass user = userClassService.findByEmail(auth.getName());
 			
-			doctorService.update(dto, user);
+			doctorService.update(dto, userClass);
 			return ResponseEntity.noContent().build();
 		
 		 } catch (EntityNotFoundException e) {
@@ -119,12 +109,10 @@ public class DoctorController {
 	
 	@DeleteMapping("/removeSpecialty/{idSpecialty}")
 	@PreAuthorize("hasAuthority('DOCTOR')")
-	public ResponseEntity<String> removeDoctorSpecialty(@PathVariable String idSpecialty) {
+	public ResponseEntity<String> removeDoctorSpecialty(@PathVariable String idSpecialty, @AuthenticationPrincipal UserClass userClass) {
 		try {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			UserClass user = userClassService.findByEmail(auth.getName());
 			
-			doctorService.removeDoctorSpecialty(user, idSpecialty);
+			doctorService.removeDoctorSpecialty(userClass, idSpecialty);
 			return ResponseEntity.ok("doctor's specialty removal was a success");
 		
 		} catch (EntityNotFoundException e) {
