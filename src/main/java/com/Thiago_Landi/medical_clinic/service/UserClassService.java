@@ -1,13 +1,8 @@
 package com.Thiago_Landi.medical_clinic.service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.Thiago_Landi.medical_clinic.controller.dto.PasswordDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.UserClassDTO;
 import com.Thiago_Landi.medical_clinic.controller.mapper.UserClassMapper;
 import com.Thiago_Landi.medical_clinic.model.Profile;
@@ -29,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UserClassService implements UserDetailsService {
 
 	private final UserClassRepository userRepository;
-	private final PasswordEncoder enconder;
+	private final PasswordEncoder encoder;
 	private final UserClassMapper mapper;
 	private final ProfileRepository profileRepository;
 	
@@ -40,18 +36,9 @@ public class UserClassService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<UserClass> optional = userRepository.findByEmail(username);
-		UserClass userClass = optional.orElseThrow(
-				() -> new UsernameNotFoundException("Usuário não encontrado"));
-		return new User(userClass.getEmail(), userClass.getPassword(), 
-				getAuthorities(userClass.getProfiles()));
+		 return userRepository.findByEmail(username)
+			        .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 	}
-	
-	private List<GrantedAuthority> getAuthorities(List<Profile> profiles) {
-        return profiles.stream()
-                .map(profile -> new SimpleGrantedAuthority(profile.getDescription()))
-                .collect(Collectors.toList());    
-        }
 	
 	public void save(UserClassDTO dto) {
 		List<Profile> profiles = dto.profiles().stream()
@@ -64,7 +51,7 @@ public class UserClassService implements UserDetailsService {
 			    HttpStatus.BAD_REQUEST, "Patient cannot be Admin or Doctor at the same time.");
 
 		
-		String encryptedPassword = enconder.encode(dto.password());
+		String encryptedPassword = encoder.encode(dto.password());
 		
 		UserClass userClass = mapper.toEntity(dto.withPassword(encryptedPassword));
 		userClass.setProfiles(profiles);
@@ -89,5 +76,14 @@ public class UserClassService implements UserDetailsService {
 	
 	public List<UserClass> findByProfileDescription(String description) {
 		return userRepository.findByProfileDescription(description);
+	}
+	
+	
+	public void changePassword(UserClass user, PasswordDTO password) {
+		if(!encoder.matches(password.passwordUser(), user.getPassword())) throw new 
+			ResponseStatusException(HttpStatus.UNAUTHORIZED, "incorrect password");
+		
+		user.setPassword(encoder.encode(password.newPassword()));
+		userRepository.save(user);
 	}
 }

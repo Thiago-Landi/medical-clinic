@@ -125,5 +125,28 @@ public class DoctorService {
 				.map(mapper::toResponseDTO)
 				.collect(Collectors.toList());
 	}
+	
+	@Transactional
+	public void removeDoctorSpecialty(UserClass user, String idSpecialty) {
+		Doctor doctor = doctorRepository.findByUserId(user.getId()).orElseThrow(
+				() -> new EntityNotFoundException("user is not a doctor"));
+		
+		Long longId = stringToLong(idSpecialty);
+		
+		boolean remove = doctor.getSpecialties().removeIf(
+				specialty -> specialty.getId().equals(longId));
+		
+		if(!remove) throw new EntityNotFoundException(
+				"Specialty with ID " + longId + " not found in the doctor.");		
+	}
+	
+	private Long stringToLong(String id) {
+		try {
+	        return Long.valueOf(id);
+		}catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid ID: must be a number");
+		}
+	}
+	
 }
 
