@@ -34,7 +34,7 @@ public class DoctorService {
 	public void save(DoctorDTO dto, UserClass user) {
 		Optional<Doctor> existingDoctor = doctorRepository.findByUserId(user.getId());
 		
-		if(existingDoctor.isPresent())  throw new IllegalStateException(
+		if(existingDoctor.isPresent()) throw new IllegalStateException(
 				"User already has a registered doctor.");
 		
 		Doctor doctor = mapper.toEntity(dto);

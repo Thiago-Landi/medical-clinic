@@ -78,10 +78,14 @@ public class UserClassService implements UserDetailsService {
 		return userRepository.findByProfileDescription(description);
 	}
 	
+	public void verifyPassword(String rawPassword, String storedHashedPassword) {
+	    if (!encoder.matches(rawPassword, storedHashedPassword)) {
+	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "incorrect password");
+	    }
+	}
 	
 	public void changePassword(UserClass user, PasswordDTO password) {
-		if(!encoder.matches(password.passwordUser(), user.getPassword())) throw new 
-			ResponseStatusException(HttpStatus.UNAUTHORIZED, "incorrect password");
+		verifyPassword(password.passwordUser(), user.getPassword());
 		
 		user.setPassword(encoder.encode(password.newPassword()));
 		userRepository.save(user);
