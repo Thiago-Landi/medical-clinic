@@ -4,10 +4,13 @@ import java.time.LocalDate;
 
 import com.Thiago_Landi.medical_clinic.model.Patient;
 
-public record PatientDTO(
+import jakarta.validation.constraints.Past;
+
+public record PatientUpdateDTO(
 		String name,
-		LocalDate dateBirth,
-		String password) {
+		@Past
+		LocalDate dateBirth
+		) {
 	
 	public Patient toEntity() {
 		Patient patient = new Patient();
