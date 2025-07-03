@@ -123,5 +123,18 @@ public class DoctorController {
 	    }	
 	}
 	
+	@GetMapping("/doctorsBySpecialty")
+	public ResponseEntity<?> getDoctorsBySpecialty(@RequestParam String specialtyTitle){
+		try {
+			List<DoctorResponseDTO> doctorResponse = doctorService.getDoctorsBySpecialty(specialtyTitle);
+			return ResponseEntity.ok(doctorResponse);
 		
+		} catch (EntityNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	        
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    }	
+		
+	}		
 }

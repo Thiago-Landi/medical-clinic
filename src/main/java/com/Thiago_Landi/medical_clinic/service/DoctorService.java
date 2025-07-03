@@ -148,5 +148,14 @@ public class DoctorService {
 		}
 	}
 	
+	public List<DoctorResponseDTO> getDoctorsBySpecialty(String title) {
+		List<Doctor> listDoctor = doctorRepository.findBySpecialtyTitle(title);
+		if(listDoctor == null || listDoctor.isEmpty()) throw new EntityNotFoundException(
+				"There is no doctor with this specialty");
+		
+		return listDoctor.stream()
+				.map(mapper::toResponseDTO)
+				.collect(Collectors.toList());
+	}
 }
 
