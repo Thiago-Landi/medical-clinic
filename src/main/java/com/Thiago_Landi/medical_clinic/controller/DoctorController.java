@@ -49,7 +49,7 @@ public class DoctorController {
 	@GetMapping("/getDoctors")
 	public ResponseEntity<?> getDoctors(@RequestParam(required = false) Long id) {
 		if(id != null) {
-			DoctorResponseDTO dto = doctorService.findById(id);
+			DoctorResponseDTO dto = doctorService.findByIdResponse(id);
 			return ResponseEntity.ok(dto);
 		}
 		else {

@@ -66,11 +66,16 @@ public class DoctorService {
 				.collect(Collectors.toList());
 	}
 	
-	public DoctorResponseDTO findById(Long id) {
+	public DoctorResponseDTO findByIdResponse(Long id) {
 		Doctor doctor = doctorRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 		return mapper.toResponseDTO(doctor);
 	}
+	
+	public Optional<Doctor> findById(Long id) {
+		return doctorRepository.findById(id);
+	}
+	
 	
 	@Transactional
 	public void addSpecialtiesUserDoctor(UserClass user, Set<String> specialties) {

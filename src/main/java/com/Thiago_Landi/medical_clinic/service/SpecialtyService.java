@@ -49,12 +49,7 @@ public class SpecialtyService {
 		if(dto.description() != null) model.setDescription(dto.description());
 	}
 
-	public Optional<Specialty> findById(String id) {
-		 try {
-		        Long longId = Long.parseLong(id);
-		        return specialtyRepository.findById(longId);
-		    } catch (NumberFormatException e) {
-		        throw new IllegalArgumentException("ID inválido");
-		    }
+	public Optional<Specialty> findById(Long id) {
+	    return specialtyRepository.findById(id);
 	}
 }

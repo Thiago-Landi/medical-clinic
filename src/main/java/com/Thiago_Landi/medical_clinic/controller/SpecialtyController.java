@@ -44,7 +44,14 @@ public class SpecialtyController {
 	@DeleteMapping("{id}")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> delete(@PathVariable("id") String id) {
-		Optional<Specialty> speciaOptional = specialtyService.findById(id);
+		 Long longId;
+		    try {
+		        longId = Long.parseLong(id);
+		    } catch (NumberFormatException e) {
+		        return ResponseEntity.badRequest().build(); // ou mensagem customizada
+		    }
+		
+		Optional<Specialty> speciaOptional = specialtyService.findById(longId);
 		if(speciaOptional.isEmpty()) return ResponseEntity.notFound().build();
 		
 		specialtyService.delete(speciaOptional.get());
@@ -54,13 +61,14 @@ public class SpecialtyController {
 	@PatchMapping("{id}")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public ResponseEntity<Void> update(@PathVariable("id") String id, @RequestBody SpecialtyDTO dto) {
-		Long longId; 
-		try {
-		        longId = Long.parseLong(id);
-		        if(specialtyService.findById(id).isEmpty()) return ResponseEntity.notFound().build();
-		    } catch (NumberFormatException e) {
-		        throw new IllegalArgumentException("ID inválido: precisa ser um número");
-		    }
+		Long longId;
+	    try {
+	        longId = Long.parseLong(id);
+	    } catch (NumberFormatException e) {
+	        return ResponseEntity.badRequest().build();
+	    }
+
+	    if (specialtyService.findById(longId).isEmpty()) return ResponseEntity.notFound().build();
 		 
 		 specialtyService.update(longId, dto);
 		 return ResponseEntity.noContent().build();
