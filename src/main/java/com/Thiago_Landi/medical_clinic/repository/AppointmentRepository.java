@@ -1,6 +1,7 @@
 package com.Thiago_Landi.medical_clinic.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -16,4 +17,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 		    Long timeId,
 		    LocalDate dataQuery
 		);
+	
+	List<Appointment> findByPatientId(Long id);
+	
+	List<Appointment> findByDoctorId(Long id);
 }

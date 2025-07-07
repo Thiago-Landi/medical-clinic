@@ -1,6 +1,7 @@
 package com.Thiago_Landi.medical_clinic.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentHistoryDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentSaveDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AvailableTimesDTO;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
@@ -53,4 +55,12 @@ public class AppointmentController {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
 	}
+	
+	@GetMapping("/historical")
+	@PreAuthorize("hasAnyAuthority('PATIENT', 'DOCTOR')")
+	public ResponseEntity<?> searchHistoryAppointment(@AuthenticationPrincipal UserClass user) {
+			List<AppointmentHistoryDTO> dto = appointmentService.searchHistoryAppointment(user);
+			return ResponseEntity.ok(dto);
+	}
+
 }

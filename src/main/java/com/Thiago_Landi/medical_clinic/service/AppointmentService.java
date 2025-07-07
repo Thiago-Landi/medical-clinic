@@ -5,13 +5,17 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentHistoryDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentSaveDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AvailableTimesDTO;
+import com.Thiago_Landi.medical_clinic.controller.mapper.AppointmentMapper;
 import com.Thiago_Landi.medical_clinic.model.Appointment;
 import com.Thiago_Landi.medical_clinic.model.Doctor;
 import com.Thiago_Landi.medical_clinic.model.Patient;
+import com.Thiago_Landi.medical_clinic.model.ProfileType;
 import com.Thiago_Landi.medical_clinic.model.Specialty;
 import com.Thiago_Landi.medical_clinic.model.TimeSlot;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
@@ -34,6 +38,7 @@ public class AppointmentService {
 	private final SpecialtyService specialtyService;
 	private final DoctorService doctorService;
 	private final TimeService timeService;
+	private final AppointmentMapper mapper;
 	
 	public AvailableTimesDTO getDoctorAvailableTimes(Long id, LocalDate date) {
 		Doctor doctor = doctorRepository.findById(id).orElseThrow(
@@ -86,4 +91,27 @@ public class AppointmentService {
 	    appointmentRepository.save(appointment);
 	}
 	
+	public List<AppointmentHistoryDTO> searchHistoryAppointment(UserClass user) {
+		if(user.getAuthorities().contains(new SimpleGrantedAuthority(ProfileType.PATIENT.getDesc()))) {
+			Patient patient = patientRepository.findByUserId(user.getId())
+	                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+	
+			return appointmentRepository.findByPatientId(patient.getId())
+					.stream()
+					.map(mapper::toHistoryDTO)
+					.collect(Collectors.toList());
+		}
+		
+		if(user.getAuthorities().contains(new SimpleGrantedAuthority(ProfileType.DOCTOR.getDesc()))) {
+			 Doctor doctor = doctorRepository.findByUserId(user.getId())
+		                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+			
+			return appointmentRepository.findByDoctorId(doctor.getId())
+					.stream()
+					.map(mapper::toHistoryDTO)
+					.collect(Collectors.toList());
+		}
+		
+		throw new EntityNotFoundException("Profile not recognized for history.");
+	}
 }
