@@ -42,7 +42,7 @@ public class Appointment implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name = "id_time")
-	private Time time; 
+	private TimeSlot time; 
 
 	@Column(name = "data_query")
 	@DateTimeFormat(iso = ISO.DATE)

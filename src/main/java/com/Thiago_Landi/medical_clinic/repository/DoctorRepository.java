@@ -13,8 +13,10 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long>{
 
 	Optional<Doctor> findByUserId(Long userId);
 	List<Doctor> findByNameContainingIgnoreCase(String name);
-	
+	Optional<Doctor> findByName(String name);
+
 	@Query("SELECT d FROM Doctor d JOIN d.specialties s WHERE LOWER(s.title) = LOWER(:title)")
 	List<Doctor> findBySpecialtyTitle(@Param("title") String title);
-
+	
+	
 }

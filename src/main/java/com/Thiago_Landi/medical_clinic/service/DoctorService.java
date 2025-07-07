@@ -119,7 +119,7 @@ public class DoctorService {
 		if(dto.dateInscription() != null) model.setDateInscription(dto.dateInscription());
 	}
 	
-	public List<DoctorResponseDTO> findByName(String name) {
+	public List<DoctorResponseDTO> findByDoctorsByName(String name) {
 		return doctorRepository.findByNameContainingIgnoreCase(name)
 				.stream()
 				.map(mapper::toResponseDTO)
@@ -150,7 +150,7 @@ public class DoctorService {
 	
 	public List<DoctorResponseDTO> getDoctorsBySpecialty(String title) {
 		List<Doctor> listDoctor = doctorRepository.findBySpecialtyTitle(title);
-		if(listDoctor == null || listDoctor.isEmpty()) throw new EntityNotFoundException(
+		if(listDoctor.isEmpty()) throw new EntityNotFoundException(
 				"There is no doctor with this specialty");
 		
 		return listDoctor.stream()
