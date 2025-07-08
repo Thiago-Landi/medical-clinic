@@ -59,17 +59,10 @@ public class AppointmentService {
 	}
 	
 	public void save(AppointmentSaveDTO dto, UserClass user) {
-		Specialty specialty = specialtyService.findById(dto.idSpecialty()).orElseThrow(
-				() -> new EntityNotFoundException("Specialty not found"));
-		
-		Doctor doctor = doctorService.findById(dto.idDoctor()).orElseThrow(
-				() -> new EntityNotFoundException("Doctor not found"));
-		
-		TimeSlot timeSlot = timeService.findById(dto.idTime()).orElseThrow(
-				() -> new EntityNotFoundException("Time not found"));
-		
-		Patient patient = patientRepository.findByUserId(user.getId()).orElseThrow(
-				() -> new IllegalStateException("User already has a registered patient."));
+		Specialty specialty = getSpecialty(dto.idSpecialty());
+		Doctor doctor = getDoctor(dto.idDoctor());
+		TimeSlot timeSlot = getTimeSlot(dto.idTime());
+		Patient patient = getPatient(user.getId());
 		
 		boolean exists = appointmentRepository.existsByDoctorIdAndPatientIdAndSpecialtyIdAndTimeIdAndDataQuery(
 			    doctor.getId(),
@@ -81,31 +74,53 @@ public class AppointmentService {
 
 		if (exists) throw new IllegalStateException("An appointment with these details already exists.");
 		
-	    Appointment appointment = new Appointment();
+	    Appointment appointment = buildAppointment(specialty, doctor, timeSlot, patient, dto.dataQuery());
+	    appointmentRepository.save(appointment);
+	}
+	
+	private Specialty getSpecialty(Long id) {
+		return specialtyService.findById(id).orElseThrow(
+				() -> new EntityNotFoundException("Specialty not found"));
+	}
+	
+	private Doctor getDoctor(Long id) {
+		return doctorService.findById(id).orElseThrow(
+				() -> new EntityNotFoundException("Doctor not found"));
+	}
+	
+	private TimeSlot getTimeSlot(Long id) {
+		return timeService.findById(id).orElseThrow(
+				() -> new EntityNotFoundException("Specialty not found"));
+	}
+	
+	private Patient getPatient(Long id) {
+		return patientRepository.findById(id).orElseThrow(
+				() -> new EntityNotFoundException("Specialty not found"));
+	}
+	
+	private Appointment buildAppointment(Specialty specialty, Doctor doctor, TimeSlot timeSlot, Patient patient, 
+			LocalDate date) {
+		Appointment appointment = new Appointment();
 	    appointment.setSpecialty(specialty);
 	    appointment.setDoctor(doctor);
 	    appointment.setTime(timeSlot);
 	    appointment.setPatient(patient);
-	    appointment.setDataQuery(dto.dataQuery());
-	    
-	    appointmentRepository.save(appointment);
+	    appointment.setDataQuery(date);
+	    return appointment;
 	}
+
 	
 	public List<AppointmentHistoryDTO> searchHistoryAppointment(UserClass user) {
-		if(user.getAuthorities().contains(new SimpleGrantedAuthority(ProfileType.PATIENT.getDesc()))) {
-			Patient patient = patientRepository.findByUserId(user.getId())
-	                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
-	
+		if(hasRole(user, ProfileType.PATIENT)) {
+			Patient patient = getPatientByUser(user);	
 			return appointmentRepository.findByPatientId(patient.getId())
 					.stream()
 					.map(mapper::toHistoryDTO)
 					.collect(Collectors.toList());
 		}
 		
-		if(user.getAuthorities().contains(new SimpleGrantedAuthority(ProfileType.DOCTOR.getDesc()))) {
-			 Doctor doctor = doctorRepository.findByUserId(user.getId())
-		                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
-			
+		if(hasRole(user, ProfileType.DOCTOR)) {
+			 Doctor doctor = getDoctorByUser(user);
 			return appointmentRepository.findByDoctorId(doctor.getId())
 					.stream()
 					.map(mapper::toHistoryDTO)
@@ -113,5 +128,19 @@ public class AppointmentService {
 		}
 		
 		throw new EntityNotFoundException("Profile not recognized for history.");
+	}
+	
+	private boolean hasRole(UserClass user, ProfileType profileType) {
+	    return user.getAuthorities().contains(new SimpleGrantedAuthority(profileType.getDesc()));
+	}
+	
+	private Patient getPatientByUser(UserClass user) {
+	    return patientRepository.findByUserId(user.getId())
+	        .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+	}
+
+	private Doctor getDoctorByUser(UserClass user) {
+	    return doctorRepository.findByUserId(user.getId())
+	        .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 	}
 }
