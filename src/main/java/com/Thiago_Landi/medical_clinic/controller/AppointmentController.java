@@ -8,14 +8,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.annotation.PatchExchange;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentHistoryDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentSaveDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentUpdateDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AvailableTimesDTO;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.service.AppointmentService;
@@ -62,5 +65,21 @@ public class AppointmentController {
 			List<AppointmentHistoryDTO> dto = appointmentService.searchHistoryAppointment(user);
 			return ResponseEntity.ok(dto);
 	}
-
+	
+	@PatchExchange("/update/{id}")
+	@PreAuthorize("hasAuthority('PATIENT')")
+	public ResponseEntity<?> update(@PathVariable Long id, 
+			@RequestBody AppointmentUpdateDTO dto, @AuthenticationPrincipal UserClass user) {
+		try {
+			
+			appointmentService.update(id, dto, user);
+			return ResponseEntity.noContent().build();
+			
+		} catch (EntityNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	        
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	  }
+	}
 }

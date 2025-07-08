@@ -3,13 +3,16 @@ package com.Thiago_Landi.medical_clinic.service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentHistoryDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentSaveDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.AppointmentUpdateDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.AvailableTimesDTO;
 import com.Thiago_Landi.medical_clinic.controller.mapper.AppointmentMapper;
 import com.Thiago_Landi.medical_clinic.model.Appointment;
@@ -58,15 +61,15 @@ public class AppointmentService {
 		return new AvailableTimesDTO(doctor.getName(), hours);
 	}
 	
+	// tem uma validação a se fazer, se existe medico com a espeicilidade indicada 
 	public void save(AppointmentSaveDTO dto, UserClass user) {
 		Specialty specialty = getSpecialty(dto.idSpecialty());
 		Doctor doctor = getDoctor(dto.idDoctor());
 		TimeSlot timeSlot = getTimeSlot(dto.idTime());
-		Patient patient = getPatient(user.getId());
+		Patient patient = getPatientByUserId(user.getId());
 		
-		boolean exists = appointmentRepository.existsByDoctorIdAndPatientIdAndSpecialtyIdAndTimeIdAndDataQuery(
+		boolean exists = appointmentRepository.existsByDoctorIdAndSpecialtyIdAndTimeIdAndDataQuery(
 			    doctor.getId(),
-			    patient.getId(),
 			    specialty.getId(),
 			    timeSlot.getId(),
 			    dto.dataQuery()
@@ -90,12 +93,22 @@ public class AppointmentService {
 	
 	private TimeSlot getTimeSlot(Long id) {
 		return timeService.findById(id).orElseThrow(
-				() -> new EntityNotFoundException("Specialty not found"));
+				() -> new EntityNotFoundException("Time not found"));
 	}
 	
 	private Patient getPatient(Long id) {
 		return patientRepository.findById(id).orElseThrow(
-				() -> new EntityNotFoundException("Specialty not found"));
+				() -> new EntityNotFoundException("Patient not found"));
+	}
+	
+	private Patient getPatientByUserId(Long userId) {
+	    return patientRepository.findByUserId(userId)
+	        .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+	}
+	
+	private Doctor getDoctorByUserId(Long userId) {
+	    return doctorRepository.findByUserId(userId)
+	        .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 	}
 	
 	private Appointment buildAppointment(Specialty specialty, Doctor doctor, TimeSlot timeSlot, Patient patient, 
@@ -112,18 +125,18 @@ public class AppointmentService {
 	
 	public List<AppointmentHistoryDTO> searchHistoryAppointment(UserClass user) {
 		if(hasRole(user, ProfileType.PATIENT)) {
-			Patient patient = getPatientByUser(user);	
+			Patient patient = getPatientByUserId(user.getId());	
 			return appointmentRepository.findByPatientId(patient.getId())
 					.stream()
-					.map(mapper::toHistoryDTO)
+					.map(mapper::toForPatientDTO)
 					.collect(Collectors.toList());
 		}
 		
 		if(hasRole(user, ProfileType.DOCTOR)) {
-			 Doctor doctor = getDoctorByUser(user);
+			 Doctor doctor = getDoctorByUserId(user.getId());
 			return appointmentRepository.findByDoctorId(doctor.getId())
 					.stream()
-					.map(mapper::toHistoryDTO)
+					.map(mapper::toForDoctorDTO)
 					.collect(Collectors.toList());
 		}
 		
@@ -134,13 +147,50 @@ public class AppointmentService {
 	    return user.getAuthorities().contains(new SimpleGrantedAuthority(profileType.getDesc()));
 	}
 	
-	private Patient getPatientByUser(UserClass user) {
-	    return patientRepository.findByUserId(user.getId())
-	        .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+	// validaçoes a fazer, como impedir que seja agendado uma consulta com doctor e uma specialty que o doctor não tenha
+	public void update(Long idAppointment, AppointmentUpdateDTO dtoAppointment, 
+			UserClass user) {
+		
+		Patient patient = getPatientByUserId(user.getId());
+		Appointment modelAppointment = appointmentRepository.findById(idAppointment)
+				.orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+		
+		if(!Objects.equals(modelAppointment.getPatient().getId(), patient.getId())) {
+			throw new AccessDeniedException("You are not allowed to update this appointment.");
+		}
+		
+		boolean exists = appointmentRepository.existsByDoctorIdAndSpecialtyIdAndTimeIdAndDataQueryAndIdNot(
+				dtoAppointment.idDoctor(), dtoAppointment.idSpecialty(), 
+				dtoAppointment.idTime(), dtoAppointment.dataQuery(), idAppointment);
+		
+		if (exists) {
+		    throw new IllegalStateException("An appointment with these details already exists.");
+		}
+		
+		updateData(modelAppointment, dtoAppointment);
+		appointmentRepository.save(modelAppointment);
 	}
-
-	private Doctor getDoctorByUser(UserClass user) {
-	    return doctorRepository.findByUserId(user.getId())
-	        .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+	
+	private void updateData(Appointment model, AppointmentUpdateDTO dto) {
+		if(dto.idSpecialty() != null) {
+			Specialty specialty = getSpecialty(dto.idSpecialty());
+			model.setSpecialty(specialty);
+		}
+		
+		if(dto.idDoctor() != null) {
+			Doctor doctor = getDoctor(dto.idDoctor());
+			model.setDoctor(doctor);;
+		}
+		
+		if(dto.idTime() != null) {
+			TimeSlot timeSlot = getTimeSlot(dto.idTime());
+			model.setTime(timeSlot);
+		}
+		
+		if(dto.dataQuery() != null) {
+			model.setDataQuery(dto.dataQuery());
+		}
 	}
+	
+	
 }
