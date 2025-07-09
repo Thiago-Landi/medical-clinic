@@ -192,5 +192,16 @@ public class AppointmentService {
 		}
 	}
 	
+	public void delete(UserClass user, Long idAppointment) {
+		Patient patient = getPatientByUserId(user.getId());
+		Appointment appointment = appointmentRepository.findById(idAppointment).orElseThrow(
+				() -> new EntityNotFoundException("Appointment not found"));
+		
+		if(!Objects.equals(appointment.getPatient().getId(), patient.getId())) {
+			throw new AccessDeniedException("You are not allowed to delete this appointment.");
+		}
+		
+		appointmentRepository.delete(appointment);
+	}
 	
 }
