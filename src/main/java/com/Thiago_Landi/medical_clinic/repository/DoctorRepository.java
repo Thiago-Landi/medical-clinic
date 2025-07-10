@@ -18,5 +18,13 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long>{
 	@Query("SELECT d FROM Doctor d JOIN d.specialties s WHERE LOWER(s.title) = LOWER(:title)")
 	List<Doctor> findBySpecialtyTitle(@Param("title") String title);
 	
+	@Query("SELECT COUNT(d) > 0 " +
+		       "FROM Doctor d " +
+		       "JOIN d.specialties s " +
+		       "JOIN d.appointments a " +
+		       "WHERE a.specialty.id = :idSpecialty AND a.doctor.id = :idDoctor")
+	boolean hasEspecialidadeAgendada(Long idDoctor, Long idSpecialty);
+
+
 	
 }

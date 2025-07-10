@@ -109,7 +109,7 @@ public class DoctorController {
 	
 	@DeleteMapping("/removeSpecialty/{idSpecialty}")
 	@PreAuthorize("hasAuthority('DOCTOR')")
-	public ResponseEntity<String> removeDoctorSpecialty(@PathVariable String idSpecialty, @AuthenticationPrincipal UserClass userClass) {
+	public ResponseEntity<String> removeDoctorSpecialty(@PathVariable Long idSpecialty, @AuthenticationPrincipal UserClass userClass) {
 		try {
 			
 			doctorService.removeDoctorSpecialty(userClass, idSpecialty);
