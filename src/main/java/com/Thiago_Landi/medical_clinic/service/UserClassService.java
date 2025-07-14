@@ -26,7 +26,7 @@ public class UserClassService implements UserDetailsService {
 
 	private final UserClassRepository userRepository;
 	private final PasswordEncoder encoder;
-	private final UserClassMapper mapper;
+	private final UserClassMapper userMapper;
 	private final ProfileRepository profileRepository;
 	
 	public UserClass findByEmail(String email) {
@@ -53,10 +53,11 @@ public class UserClassService implements UserDetailsService {
 		
 		String encryptedPassword = encoder.encode(dto.password());
 		
-		UserClass userClass = mapper.toEntity(dto.withPassword(encryptedPassword));
+		UserClass userClass = userMapper.toEntity(dto.withPassword(encryptedPassword));
 		userClass.setProfiles(profiles);
 		userRepository.save(userClass);
 	}
+	
 	
 	private boolean containsProfiles(List<Profile> profiles) {
 		List<String> description = profiles.stream()
@@ -90,4 +91,5 @@ public class UserClassService implements UserDetailsService {
 		user.setPassword(encoder.encode(password.newPassword()));
 		userRepository.save(user);
 	}
+	
 }

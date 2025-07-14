@@ -16,8 +16,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.PasswordDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.UserClassDTO;
+import com.Thiago_Landi.medical_clinic.controller.dto.UserPatientCreatedDTO;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
 import com.Thiago_Landi.medical_clinic.service.UserClassService;
+import com.Thiago_Landi.medical_clinic.service.UserPatientSaveService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class UserClassController {
 
 	private final UserClassService userClassService;
+	private final UserPatientSaveService userPatientService;
 	
 	@PostMapping
 	@PreAuthorize("hasAuthority('ADMIN')")
@@ -59,5 +62,15 @@ public class UserClassController {
 		userClassService.changePassword(user, passwordDoctor);
 		return ResponseEntity.ok("password changed successfully");
 		
+	}
+	
+	@PostMapping("/save-user-patient")
+	public ResponseEntity<?> saveUserPatient(@RequestBody UserPatientCreatedDTO dto){
+		try {
+			userPatientService.saveUserPatient(dto);
+			return ResponseEntity.status(HttpStatus.CREATED).build();
+		}catch(IllegalStateException e) {
+			 return ResponseEntity.badRequest().body(e.getMessage());
+		}
 	}
 }

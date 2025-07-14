@@ -16,4 +16,6 @@ public interface UserClassRepository extends JpaRepository<UserClass, Long> {
 	
 	@Query("SELECT u FROM UserClass u JOIN u.profiles p WHERE LOWER(p.description) = LOWER(:desc)")
 	List<UserClass> findByProfileDescription(@Param("desc") String desc);
+	
+	boolean existsByEmail(String email);
 }

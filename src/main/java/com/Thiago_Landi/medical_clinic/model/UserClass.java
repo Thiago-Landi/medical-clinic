@@ -52,7 +52,7 @@ public class UserClass implements Serializable, UserDetails {
 	private List<Profile> profiles;
 	
 	@Column(name = "active", nullable = false, columnDefinition = "TINYINT(1)")
-	private boolean active = true; 
+	private boolean active; 
 	
 	@Column(name = "verification_code", length = 6)
 	private String verificationCode;
