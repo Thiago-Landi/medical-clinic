@@ -18,4 +18,7 @@ public interface UserClassRepository extends JpaRepository<UserClass, Long> {
 	List<UserClass> findByProfileDescription(@Param("desc") String desc);
 	
 	boolean existsByEmail(String email);
+
+	@Query("select u from UserClass u where u.email like :email AND u.active = true")
+	Optional<UserClass> findByEmailAndActive(String email);
 }

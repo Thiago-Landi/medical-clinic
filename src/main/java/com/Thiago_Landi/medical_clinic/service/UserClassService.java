@@ -1,6 +1,7 @@
 package com.Thiago_Landi.medical_clinic.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ public class UserClassService implements UserDetailsService {
 	private final ProfileRepository profileRepository;
 	
 	public UserClass findByEmail(String email) {
-		return userRepository.findByEmail(email) .orElseThrow(
+		return userRepository.findByEmailAndActive(email) .orElseThrow(
 				() -> new RuntimeException("Usuário não encontrado"));
 	}
 
@@ -90,6 +91,10 @@ public class UserClassService implements UserDetailsService {
 		
 		user.setPassword(encoder.encode(password.newPassword()));
 		userRepository.save(user);
+	}
+	
+	public Optional<UserClass> searchByEmailAndActive(String email){
+		return userRepository.findByEmailAndActive(email);
 	}
 	
 }
