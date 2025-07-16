@@ -90,4 +90,14 @@ public class UserClassController {
             return new RedirectView("/confirmation-failed.html");
         }
 	}	
+	
+	@PostMapping("/password/reset")
+	public ResponseEntity<?> passwordResetRequest(@RequestParam String email){
+		try {
+			userClassService.passwordResetRequest(email);
+			return ResponseEntity.noContent().build();
+		}catch (IllegalStateException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+	}
 }

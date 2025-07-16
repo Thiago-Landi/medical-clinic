@@ -30,4 +30,21 @@ public class EmailService {
 		
 		mailSender.send(mailMessage);
 	}
+	
+	public void sendPasswordReset(String destination, String code) {
+		String link = "http://localhost:8080/users/password/reset?code=" + code;
+		
+		String subject = "Alterar senha";
+		String body = "Olá! \n\n"
+					+ "Para alterar a senha, clique no link abaixo:\n\n"
+					+ link;
+					
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(destination);
+		mailMessage.setSubject(subject);
+		mailMessage.setText(body);
+		mailMessage.setFrom("nao-responder@clinica.com.br");
+		
+		mailSender.send(mailMessage);
+	}
 }

@@ -2,6 +2,7 @@ package com.Thiago_Landi.medical_clinic.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.PasswordDTO;
@@ -30,6 +32,7 @@ public class UserClassService implements UserDetailsService {
 	private final UserClassMapper userMapper;
 	private final ProfileRepository profileRepository;
 	private final RegistrationService registrationService;
+	private final EmailService emailService;
 	
 	public UserClass findByEmail(String email) {
 		return userRepository.findByEmailAndActive(email) .orElseThrow(
@@ -98,6 +101,21 @@ public class UserClassService implements UserDetailsService {
 	
 	public Optional<UserClass> searchByEmailAndActive(String email){
 		return userRepository.findByEmailAndActive(email);
+	}
+	
+	@Transactional
+	public void passwordResetRequest(String email) {
+		UserClass user = findByEmail(email);
+	
+		if(!user.isActive()) {
+			throw new IllegalStateException("User has not yet confirmed registration.");
+		}
+		
+		String code = UUID.randomUUID().toString();
+		user.setVerificationCode(code);
+		userRepository.save(user);
+		
+		emailService.sendPasswordReset(email, code);
 	}
 	
 }
