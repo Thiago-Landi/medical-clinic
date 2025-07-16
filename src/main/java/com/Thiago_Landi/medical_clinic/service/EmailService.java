@@ -14,10 +14,10 @@ public class EmailService {
 	
 	
 	public void sendRegistrationConfirmation(String destination, String confirmationCode) {
-		String link = "http://localhost:8080/users/confirmation?code=" + confirmationCode;
+		String link = "http://localhost:8080/users/confirmation/register?code=" + confirmationCode;
 		
 		String subject = "Confirmação de Cadastro";
-		String body = "Olá!/n/n"
+		String body = "Olá!\n\n"
 					+ "Obrigado por se cadastrar. Para confirmar seu cadastro, clique no link abaixo:\n\n"
 					+ link + "\n\n"
 					+ "Se você não solicitou este cadastro, ignore este e-mail.";

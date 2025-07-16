@@ -54,7 +54,7 @@ public class UserClass implements Serializable, UserDetails {
 	@Column(name = "active", nullable = false, columnDefinition = "TINYINT(1)")
 	private boolean active; 
 	
-	@Column(name = "verification_code", length = 6)
+	@Column(name = "verification_code")
 	private String verificationCode;
 	
 	public void addProfile(ProfileType type) {

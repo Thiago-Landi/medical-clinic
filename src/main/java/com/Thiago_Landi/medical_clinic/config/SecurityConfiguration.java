@@ -31,6 +31,8 @@ public class SecurityConfiguration {
 						authorize -> {
 							authorize
 								.requestMatchers(HttpMethod.POST, "/users/save-user-patient").permitAll()
+								.requestMatchers(HttpMethod.GET,"/users/confirmation/register").permitAll()
+								.requestMatchers("/confirmation-success.html", "/confirmation-failed.html").permitAll()
 								.anyRequest().authenticated();						
 						}
 				)

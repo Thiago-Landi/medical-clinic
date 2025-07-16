@@ -29,6 +29,7 @@ public class UserClassService implements UserDetailsService {
 	private final PasswordEncoder encoder;
 	private final UserClassMapper userMapper;
 	private final ProfileRepository profileRepository;
+	private final RegistrationService registrationService;
 	
 	public UserClass findByEmail(String email) {
 		return userRepository.findByEmailAndActive(email) .orElseThrow(
@@ -57,6 +58,8 @@ public class UserClassService implements UserDetailsService {
 		UserClass userClass = userMapper.toEntity(dto.withPassword(encryptedPassword));
 		userClass.setProfiles(profiles);
 		userRepository.save(userClass);
+		
+		registrationService.RegistrationConfirmationEmail(userClass);
 	}
 	
 	

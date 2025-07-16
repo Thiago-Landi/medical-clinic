@@ -11,13 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.Thiago_Landi.medical_clinic.controller.dto.PasswordDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.UserClassDTO;
 import com.Thiago_Landi.medical_clinic.controller.dto.UserPatientCreatedDTO;
 import com.Thiago_Landi.medical_clinic.model.UserClass;
+import com.Thiago_Landi.medical_clinic.service.RegistrationService;
 import com.Thiago_Landi.medical_clinic.service.UserClassService;
 import com.Thiago_Landi.medical_clinic.service.UserPatientSaveService;
 
@@ -30,6 +33,7 @@ public class UserClassController {
 
 	private final UserClassService userClassService;
 	private final UserPatientSaveService userPatientService;
+	private final RegistrationService registrationService;
 	
 	@PostMapping
 	@PreAuthorize("hasAuthority('ADMIN')")
@@ -73,4 +77,17 @@ public class UserClassController {
 			 return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
+	
+	// esse metodo esta usando RedirectView apenas para teste, ate que o front esteja pronto
+	// apos o front estiver pronto o metodo vai mudar para ResponseEntity e vai ocorrer as mudanças necessarias
+	@GetMapping("/confirmation/register")
+	public RedirectView confirmationRegister(@RequestParam("code") String code) {
+		try {
+			registrationService.confirmRegistration(code);
+			return new RedirectView("/confirmation-success.html");
+	
+		}catch (IllegalArgumentException e) {
+            return new RedirectView("/confirmation-failed.html");
+        }
+	}	
 }

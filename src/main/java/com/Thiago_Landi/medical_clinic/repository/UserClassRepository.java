@@ -21,4 +21,6 @@ public interface UserClassRepository extends JpaRepository<UserClass, Long> {
 
 	@Query("select u from UserClass u where u.email like :email AND u.active = true")
 	Optional<UserClass> findByEmailAndActive(String email);
+
+	Optional<UserClass> findByVerificationCode(String code);
 }

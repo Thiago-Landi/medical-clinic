@@ -23,10 +23,10 @@ public class MedicalClinicApplication implements CommandLineRunner{
 
 	@Override
 	public void run(String... args) throws Exception {
-		service.sendRegistrationConfirmation("thiagolandi007@gmail.com", "123456");
+		/*	service.sendRegistrationConfirmation("thiagolandi007@gmail.com", "123456");
 		
 		
-	/*
+	
 		SimpleMailMessage simple = new SimpleMailMessage();
 		simple.setTo("thiagolandi007@gmail.com");
 		simple.setText("teste numero 1");

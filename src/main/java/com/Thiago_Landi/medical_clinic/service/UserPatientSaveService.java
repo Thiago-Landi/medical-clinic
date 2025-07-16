@@ -21,7 +21,7 @@ public class UserPatientSaveService {
 	 private final PatientRepository patientRepository;
 	 private final PasswordEncoder encoder;
 	 private final UserPatientMapper userPatientMapper;
-	    
+	 private final RegistrationService registrationService;
 	 
 	 public void saveUserPatient(UserPatientCreatedDTO dto) {
 		 if(userRepository.existsByEmail(dto.email())) {
@@ -38,6 +38,8 @@ public class UserPatientSaveService {
 		 patient.setUser(user);
 		 
 		 patientRepository.save(patient);
+		 
+		 registrationService.RegistrationConfirmationEmail(user);
 	 }
 	    
 }
